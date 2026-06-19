@@ -21,12 +21,12 @@ paths:
         - People
       summary: "Create a person"
       requestBody:
+        x-body-name: "person"
         description: "Person to create"
-        required: True
+        required: true
         content:
           application/json:
             schema:
-              x-body-name: "person"
               $ref: "#/components/schemas/Person"
       responses:
         "201":
@@ -53,10 +53,11 @@ paths:
         "200":
           description: "Successfully updated person"
       requestBody:
+        x-body-name: "person"
+        required: true
         content:
           application/json:
             schema:
-              x-body-name: "person"
               $ref: "#/components/schemas/Person"
     delete:
       tags:
@@ -85,6 +86,6 @@ components:
       name: "lname"
       description: "Last name of the person to get"
       in: path
-      required: True
+      required: true
       schema:
         type: "string"
