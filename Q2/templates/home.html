@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketplace de Instrumentos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --surface-color: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --primary: #000000;
+            --primary-hover: #333333;
+            --primary-text: #ffffff;
+            --input-bg: #f1f5f9;
+            --danger: #ef4444;
+            --success: #10b981;
+            --success-hover: #059669;
+            --badge-bg: #f1f5f9;
+            --badge-text: #334155;
+            --card-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #000000;
+            --surface-color: #111111;
+            --text-main: #ededed;
+            --text-muted: #a1a1aa;
+            --border-color: #27272a;
+            --primary: #ffffff;
+            --primary-hover: #e4e4e7;
+            --primary-text: #000000;
+            --input-bg: #18181b;
+            --badge-bg: #27272a;
+            --badge-text: #ededed;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-main); transition: background-color 0.3s ease, color 0.3s ease; display: flex; flex-direction: column; min-height: 100vh; }
+
+        .navbar { background-color: var(--surface-color); padding: 16px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; transition: background-color 0.3s ease; }
+        .navbar h1 { font-size: 1.25rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
+
+        .nav-actions { display: flex; align-items: center; gap: 24px; }
+
+        .theme-toggle { background: transparent; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: color 0.2s ease; padding: 0; }
+        .theme-toggle:hover { color: var(--text-main); }
+        .theme-toggle .moon { display: none; }
+        [data-theme="dark"] .theme-toggle .sun { display: none; }
+        [data-theme="dark"] .theme-toggle .moon { display: block; }
+
+        .btn-primary { background-color: var(--primary); color: var(--primary-text); padding: 10px 20px; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: transform 0.1s, background-color 0.2s; }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        .btn-primary:active { transform: scale(0.98); }
+
+        .container { max-width: 1280px; margin: 40px auto; padding: 0 20px; flex-grow: 1; width: 100%; }
+        .filter-bar { background: var(--surface-color); padding: 24px; border-radius: 12px; box-shadow: var(--card-shadow); margin-bottom: 40px; display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; border: 1px solid var(--border-color); transition: all 0.3s ease; }
+        .form-group-filter { flex: 1; min-width: 200px; display: flex; flex-direction: column; }
+        .form-group-filter label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
+        .filter-bar select, .filter-bar input { padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; background-color: var(--input-bg); color: var(--text-main); outline: none; transition: border-color 0.2s; }
+        .filter-bar select:focus, .filter-bar input:focus { border-color: var(--primary); }
+        .btn-secondary { background-color: var(--input-bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 12px 28px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; height: 45px; }
+        .btn-secondary:hover { background-color: var(--text-main); color: var(--surface-color); }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+        .card { background: var(--surface-color); border-radius: 12px; overflow: hidden; box-shadow: var(--card-shadow); border: 1px solid var(--border-color); transition: transform 0.2s ease, box-shadow 0.2s ease; display: flex; flex-direction: column; }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -8px rgba(0,0,0,0.15); }
+
+        .card-img-container { width: 100%; height: 240px; background-color: transparent; display: flex; align-items: center; justify-content: center; padding: 20px; border-bottom: 1px solid var(--border-color); }
+        .card-img-container img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+        .card-body { padding: 24px; flex-grow: 1; display: flex; flex-direction: column; }
+        .card-title { font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+        .card-subtitle { color: var(--text-muted); font-size: 0.9rem; font-weight: 500; margin-bottom: 16px; }
+        .badges { margin-bottom: 20px; display: flex; gap: 8px; flex-wrap: wrap; }
+        .badge { padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; color: var(--badge-text); background-color: var(--badge-bg); }
+        .badge-novo { border: 1px solid var(--success); color: var(--success); background-color: transparent; }
+
+        .card-footer { margin-top: auto; display: flex; flex-direction: column; gap: 16px; }
+        .price { font-size: 1.5rem; color: var(--text-main); font-weight: 800; letter-spacing: -0.5px; }
+
+        .btn-buy { background-color: transparent; color: var(--text-main); border: 1px solid var(--border-color); padding: 12px; width: 100%; font-size: 0.95rem; font-weight: 700; cursor: pointer; border-radius: 8px; transition: all 0.2s; }
+        .btn-buy:hover { border-color: var(--text-main); background-color: var(--text-main); color: var(--surface-color); }
+
+
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background-color: var(--surface-color); padding: 32px; border-radius: 16px; width: 90%; max-width: 480px; position: relative; border: 1px solid var(--border-color); animation: scaleUp 0.2s ease-out; }
+        @keyframes scaleUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .close-modal { position: absolute; right: 24px; top: 24px; font-size: 24px; color: var(--text-muted); cursor: pointer; line-height: 1; transition: color 0.2s; }
+        .close-modal:hover { color: var(--text-main); }
+        .modal h2 { margin-top: 0; margin-bottom: 24px; color: var(--text-main); font-size: 1.5rem; font-weight: 800; }
+
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; color: var(--text-muted); }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; color: var(--text-main); background-color: var(--input-bg); outline: none; transition: border-color 0.2s; }
+        .form-group input:focus, .form-group select:focus { border-color: var(--primary); }
+
+
+        .modal-compra-details { background-color: var(--input-bg); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 24px; }
+        .modal-compra-details p { margin: 8px 0; color: var(--text-muted); font-size: 0.95rem;}
+        .modal-compra-details strong { color: var(--text-main); }
+        .modal-compra-price { font-size: 2rem; font-weight: 800; color: var(--text-main); margin-top: 12px; display: block; }
+        .modal-actions { display: flex; gap: 12px; }
+        .btn-cancel { background-color: transparent; border: 1px solid var(--border-color); color: var(--text-main); padding: 12px; flex: 1; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .btn-cancel:hover { background-color: var(--input-bg); }
+        .btn-confirm { background-color: var(--primary); border: none; color: var(--primary-text); padding: 12px; flex: 1; border-radius: 8px; font-weight: 600; cursor: pointer; transition: transform 0.1s; }
+        .btn-confirm:active { transform: scale(0.98); }
+
+        .empty-state { grid-column: 1 / -1; text-align: center; padding: 80px 20px; color: var(--text-muted); background: var(--surface-color); border-radius: 12px; border: 1px dashed var(--border-color); }
+        .footer { background-color: var(--surface-color); border-top: 1px solid var(--border-color); padding: 24px 20px; text-align: center; color: var(--text-muted); font-size: 0.9rem; font-weight: 500; margin-top: auto; transition: background-color 0.3s ease; }
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <h1>Marketplace de Instrumentos</h1>
+        <div class="nav-actions">
+            <button class="theme-toggle" id="btn-theme" aria-label="Alternar Tema">
+                <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </button>
+            <button class="btn-primary" onclick="openModal('modal-anuncio')">Anunciar Instrumento</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <form class="filter-bar" method="GET" action="/">
+            <div class="form-group-filter">
+                <label>Categoria</label>
+                <select name="tipo">
+                    <option value="">Todos os Tipos</option>
+                    <option value="Guitarra">Guitarra</option>
+                    <option value="Contrabaixo">Contrabaixo</option>
+                </select>
+            </div>
+            <div class="form-group-filter">
+                <label>Marca ou Modelo</label>
+                <input type="text" name="marca" placeholder="Ex: Fender, Stratocaster...">
+            </div>
+            <div class="form-group-filter">
+                <label>Condição</label>
+                <select name="condicao">
+                    <option value="">Qualquer Estado</option>
+                    <option value="Novo">Novo</option>
+                    <option value="Usado">Usado</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-secondary">Filtrar Catálogo</button>
+        </form>
+
+        <div class="grid">
+            {% for instrument in instruments %}
+            <div class="card">
+                <div class="card-img-container">
+                    <img src="{{ instrument.imagem_url or 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&q=80' }}" alt="{{ instrument.marca }}">
+                </div>
+                <div class="card-body">
+                    <div class="card-title">{{ instrument.marca }}</div>
+                    <div class="card-subtitle">{{ instrument.tipo }}</div>
+
+                    <div class="badges">
+                        <span class="badge">{{ instrument.cordas }} Cordas</span>
+                        <span class="badge {% if instrument.condicao == 'Novo' %}badge-novo{% endif %}">{{ instrument.condicao }}</span>
+                    </div>
+
+                    <div class="card-footer">
+                        <div class="price">R$ {{ "%.2f"|format(instrument.preco) }}</div>
+                        <button class="btn-buy" onclick="prepararCompra({{ instrument.id }}, '{{ instrument.marca }}', '{{ instrument.tipo }}', '{{ '%.2f'|format(instrument.preco) }}')">
+                            Comprar Agora
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <h2 style="color: var(--text-main); margin-bottom: 8px;">Nenhum instrumento encontrado</h2>
+                <p>Tente ajustar os filtros de busca ou publique o seu primeiro anúncio!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <footer class="footer">
+        &copy; 2026 Marketplace de Instrumentos. Construído com minimalismo.
+    </footer>
+
+    <div id="modal-anuncio" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('modal-anuncio')">&times;</span>
+            <h2>Criar Anúncio</h2>
+            <form id="form-anunciar">
+                <div class="form-group">
+                    <label>Tipo de Instrumento</label>
+                    <select id="add-tipo" required>
+                        <option value="Guitarra">Guitarra (6 a 8 cordas)</option>
+                        <option value="Contrabaixo">Contrabaixo (4 a 6 cordas)</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 16px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Marca</label>
+                        <input type="text" id="add-marca" placeholder="Ex: Ibanez" required>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Modelo</label>
+                        <input type="text" id="add-modelo" placeholder="Ex: RG350DXZ" required>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 16px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Cordas</label>
+                        <input type="number" id="add-cordas" placeholder="Qtd" required>
+                    </div>
+                    <div class="form-group" style="flex: 2;">
+                        <label>Preço (R$)</label>
+                        <input type="number" step="0.01" id="add-preco" placeholder="0.00" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Condição do Item</label>
+                    <select id="add-condicao" required>
+                        <option value="Novo">Novo (Na caixa)</option>
+                        <option value="Usado">Usado (Com marcas de uso)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>URL da Imagem</label>
+                    <input type="url" id="add-imagem" placeholder="https://exemplo.com/foto.png">
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 8px;">Publicar Anúncio</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-compra" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('modal-compra')">&times;</span>
+            <h2>Confirmar Compra</h2>
+            <p style="color: var(--text-muted); margin-bottom: 24px; line-height: 1.5;">Você está prestes a adquirir o seguinte instrumento. Deseja prosseguir com a transação?</p>
+
+            <div class="modal-compra-details">
+                <p>Instrumento: <strong id="compra-nome"></strong></p>
+                <p>Categoria: <strong id="compra-tipo"></strong></p>
+                <span class="modal-compra-price" id="compra-preco"></span>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal('modal-compra')">Cancelar</button>
+                <button class="btn-confirm" id="btn-confirmar-compra">Confirmar Compra</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const themeBtn = document.getElementById('btn-theme');
+        const currentTheme = localStorage.getItem('theme') || 'light';
+
+        if (currentTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+
+        themeBtn.addEventListener('click', () => {
+            let theme = document.documentElement.getAttribute('data-theme');
+            if (theme === 'dark') {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+        function openModal(modalId) { document.getElementById(modalId).classList.add('active'); }
+        function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        }
+        document.getElementById('form-anunciar').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const marcaInput = document.getElementById('add-marca').value.trim();
+            const modeloInput = document.getElementById('add-modelo').value.trim();
+            const marcaCompleta = `${marcaInput} - ${modeloInput}`;
+
+            const data = {
+                tipo: document.getElementById('add-tipo').value,
+                marca: marcaCompleta,
+                cordas: parseInt(document.getElementById('add-cordas').value),
+                preco: parseFloat(document.getElementById('add-preco').value),
+                condicao: document.getElementById('add-condicao').value,
+                imagem_url: document.getElementById('add-imagem').value
+            };
+
+            const response = await fetch('/api/instruments', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                location.reload();
+            } else {
+                const errorData = await response.json();
+                alert(`Erro: ${errorData.detail || 'Verifique as regras do instrumento.'}`);
+            }
+        });
+        let instrumentoSelecionadoId = null;
+
+        function prepararCompra(id, marca, tipo, precoFormatado) {
+            instrumentoSelecionadoId = id;
+            document.getElementById('compra-nome').innerText = marca;
+            document.getElementById('compra-tipo').innerText = tipo;
+            document.getElementById('compra-preco').innerText = "R$ " + precoFormatado;
+            openModal('modal-compra');
+        }
+
+        document.getElementById('btn-confirmar-compra').addEventListener('click', async () => {
+            if (!instrumentoSelecionadoId) return;
+
+            const btn = document.getElementById('btn-confirmar-compra');
+            btn.innerText = "Processando...";
+            btn.disabled = true;
+
+            const response = await fetch(`/api/instruments/${instrumentoSelecionadoId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Erro ao processar a compra. O item pode já ter sido vendido.');
+                btn.innerText = "Confirmar Compra";
+                btn.disabled = false;
+                closeModal('modal-compra');
+            }
+        });
+    </script>
+</body>
+</html>

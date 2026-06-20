@@ -1,0 +1,95 @@
+openapi: 3.0.0
+info:
+  title: Marketplace de Instrumentos API
+  version: 1.0.0
+servers:
+  - url: /api
+paths:
+  /instruments:
+    get:
+      operationId: instruments.read_all
+      parameters:
+        - name: tipo
+          in: query
+          schema: { type: string }
+        - name: marca
+          in: query
+          schema: { type: string }
+        - name: condicao
+          in: query
+          schema: { type: string }
+        - name: cordas
+          in: query
+          schema: { type: integer }
+        - name: min_preco
+          in: query
+          schema: { type: number }
+        - name: max_preco
+          in: query
+          schema: { type: number }
+      responses:
+        "200":
+          description: Lista de instrumentos recuperada com sucesso
+    post:
+      operationId: instruments.create
+      requestBody:
+        x-body-name: instrument
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tipo, marca, cordas, preco, condicao]
+              properties:
+                tipo: { type: string }
+                marca: { type: string }
+                cordas: { type: integer }
+                preco: { type: number }
+                condicao: { type: string }
+                imagem_url: { type: string }
+      responses:
+        "201":
+          description: Instrumento criado com sucesso
+
+  /instruments/{id}:
+    delete:
+      operationId: instruments.delete
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Instrumento removido com sucesso
+        "404":
+          description: Instrumento não encontrado
+    put:
+      operationId: instruments.update
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        x-body-name: instrument
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tipo, marca, cordas, preco, condicao]
+              properties:
+                tipo: { type: string }
+                marca: { type: string }
+                cordas: { type: integer }
+                preco: { type: number }
+                condicao: { type: string }
+                imagem_url: { type: string }
+      responses:
+        "200":
+          description: Instrumento atualizado com sucesso
+        "404":
+          description: Instrumento não encontrado
